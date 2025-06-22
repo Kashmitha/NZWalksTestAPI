@@ -32,5 +32,16 @@ namespace NZWalks.API.Controllers
             return Ok(walkDto); // Return a 200 OK response
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var walksDomainModel = await walkRepository.GetAllAsync(); // Retrieve all walks from the repository
+
+            // Map the list of domain models to a list of DTOs
+            var walksDto = mapper.Map<List<WalkDto>>(walksDomainModel);
+
+            return Ok(walksDto); // Return a 200 OK response with the list of walks
+        }
+
     }
 }
