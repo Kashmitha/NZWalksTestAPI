@@ -43,5 +43,37 @@ namespace NZWalks.API.Controllers
             return Ok(walksDto); // Return a 200 OK response with the list of walks
         }
 
+        [HttpGet]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            var walkDomainModel = await walkRepository.GetByIdAsync(id); // Retrieve a walk by its ID from the repository
+
+            if(walkDomainModel == null)
+            {
+                return NotFound(); // Return a 404 Not Found response if the walk does not exist
+            }
+
+            return Ok(mapper.Map<WalkDto>(walkDomainModel)); // Map the domain model to a DTO and return it with a 200 OK response
+
+
+        }
+
+        [HttpPut]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, UpdateWalkRequestDto updateWalkRequestDto)
+        {
+            // Map the DTO to the Domain Model using AutoMapper
+            var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
+
+            walkDomainModel = await walkRepository.UpdateAsync(id, walkDomainModel); // Call the repository to update the walk
+            if(walkDomainModel == null)
+            {
+                return NotFound(); // Return a 404 Not Found response if the walk does not exist
+            }
+            // Map the updated domain model back to a DTO
+            var walkDto = mapper.Map<WalkDto>(walkDomainModel);
+            return Ok(walkDto);
+        }
     }
 }
