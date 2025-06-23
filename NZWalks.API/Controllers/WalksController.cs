@@ -75,5 +75,21 @@ namespace NZWalks.API.Controllers
             var walkDto = mapper.Map<WalkDto>(walkDomainModel);
             return Ok(walkDto);
         }
+
+        [HttpDelete]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var deletedWalkDomainModel = await walkRepository.DeleteAsync(id);
+
+            if(deletedWalkDomainModel == null)
+            {
+                return NotFound(); // Return a 404 Not Found response if the walk does not exist
+            }
+
+            // Map the deleted domain model to a DTO if needed
+            var deletedWalkDto = mapper.Map<WalkDto>(deletedWalkDomainModel);
+            return Ok(deletedWalkDto); // Return a 200 OK response with the deleted walk DTO
+        }
     }
 }
