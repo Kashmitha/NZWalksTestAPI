@@ -60,16 +60,23 @@ namespace NZWalks.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
         {
-            //Convert DTO to Domain Model
-            var regionDomainModel = mapper.Map<Region>(addRegionRequestDto); // Use AutoMapper to convert the DTO to a domain model
+            if(ModelState.IsValid)
+            {
+                //Convert DTO to Domain Model
+                var regionDomainModel = mapper.Map<Region>(addRegionRequestDto); // Use AutoMapper to convert the DTO to a domain model
 
-            // Use Domain Model to create a new Region in the database
-            regionDomainModel = await regionRepository.CreateAsync(regionDomainModel);
+                // Use Domain Model to create a new Region in the database
+                regionDomainModel = await regionRepository.CreateAsync(regionDomainModel);
 
-            //Map domain model to DTO
-            var regionDto = mapper.Map<RegionDto>(regionDomainModel); // Convert the created domain model back to a DTO 
+                //Map domain model to DTO
+                var regionDto = mapper.Map<RegionDto>(regionDomainModel); // Convert the created domain model back to a DTO 
 
-            return CreatedAtAction(nameof(GetByID), new { id = regionDto.Id }, regionDto); // Returns a 201 Created response with the location of the new resource
+                return CreatedAtAction(nameof(GetByID), new { id = regionDto.Id }, regionDto); // Returns a 201 Created response with the location of the new resource
+            }
+            else
+            {
+                return BadRequest(ModelState); // Returns a 400 Bad Request response if the model state is invalid
+            }
         }
 
 
@@ -78,20 +85,27 @@ namespace NZWalks.API.Controllers
         [Route("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
         {
-            //Map DTO to Domain Model
-            var regionDomainModel = mapper.Map<Region>(updateRegionRequestDto); // Use AutoMapper to convert the DTO to a domain model
-
-            //Check if region exits
-            await regionRepository.UpdateAsync(id, regionDomainModel);
-
-            if (regionDomainModel == null)
+            if(ModelState.IsValid)
             {
-                return NotFound();
-            }
+                //Map DTO to Domain Model
+                var regionDomainModel = mapper.Map<Region>(updateRegionRequestDto); // Use AutoMapper to convert the DTO to a domain model
 
-            //Convert Domain to DTO
-            var regionDto = mapper.Map<RegionDto>(regionDomainModel);
-            return Ok(regionDto);
+                //Check if region exits
+                await regionRepository.UpdateAsync(id, regionDomainModel);
+
+                if (regionDomainModel == null)
+                {
+                    return NotFound();
+                }
+
+                //Convert Domain to DTO
+                var regionDto = mapper.Map<RegionDto>(regionDomainModel);
+                return Ok(regionDto); // Returns a 200 OK response with the updated region's details
+            }
+            else
+            {
+                return BadRequest(ModelState); // Returns a 400 Bad Request response if the model state is invalid
+            }
         }
         
         

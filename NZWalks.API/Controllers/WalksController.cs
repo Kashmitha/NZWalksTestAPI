@@ -22,14 +22,21 @@ namespace NZWalks.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
         {
-            //Map the DTO to the Domain Model using AutoMapper
-            var walkDomainModel = mapper.Map<Walk>(addWalkRequestDto);
-            await walkRepository.CreateAsync(walkDomainModel); // Call the repository to create the walk
+            if(ModelState.IsValid)
+            {
+                //Map the DTO to the Domain Model using AutoMapper
+                var walkDomainModel = mapper.Map<Walk>(addWalkRequestDto);
+                await walkRepository.CreateAsync(walkDomainModel); // Call the repository to create the walk
 
-            //Map domain model back to DTO if needed
-            var walkDto = mapper.Map<WalkDto>(walkDomainModel);
+                //Map domain model back to DTO if needed
+                var walkDto = mapper.Map<WalkDto>(walkDomainModel);
 
-            return Ok(walkDto); // Return a 200 OK response
+                return Ok(walkDto); // Return a 200 OK response
+            }
+            else
+            {
+                return BadRequest(ModelState); // Return a 400 Bad Request response if the model state is invalid
+            }
         }
 
         [HttpGet]
@@ -63,17 +70,24 @@ namespace NZWalks.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, UpdateWalkRequestDto updateWalkRequestDto)
         {
-            // Map the DTO to the Domain Model using AutoMapper
-            var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
-
-            walkDomainModel = await walkRepository.UpdateAsync(id, walkDomainModel); // Call the repository to update the walk
-            if(walkDomainModel == null)
+            if(ModelState.IsValid)
             {
-                return NotFound(); // Return a 404 Not Found response if the walk does not exist
+                // Map the DTO to the Domain Model using AutoMapper
+                var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
+
+                walkDomainModel = await walkRepository.UpdateAsync(id, walkDomainModel); // Call the repository to update the walk
+                if (walkDomainModel == null)
+                {
+                    return NotFound(); // Return a 404 Not Found response if the walk does not exist
+                }
+                // Map the updated domain model back to a DTO
+                var walkDto = mapper.Map<WalkDto>(walkDomainModel);
+                return Ok(walkDto);
             }
-            // Map the updated domain model back to a DTO
-            var walkDto = mapper.Map<WalkDto>(walkDomainModel);
-            return Ok(walkDto);
+            else
+            {
+                return BadRequest(ModelState); // Return a 400 Bad Request response if the model state is invalid
+            }
         }
 
         [HttpDelete]
