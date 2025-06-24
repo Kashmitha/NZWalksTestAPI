@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NZWalks.API.Custom_Action_Filters;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
 using NZWalks.API.Repositories;
@@ -20,10 +21,9 @@ namespace NZWalks.API.Controllers
             this.walkRepository = walkRepository;
         }
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
         {
-            if(ModelState.IsValid)
-            {
                 //Map the DTO to the Domain Model using AutoMapper
                 var walkDomainModel = mapper.Map<Walk>(addWalkRequestDto);
                 await walkRepository.CreateAsync(walkDomainModel); // Call the repository to create the walk
@@ -32,11 +32,6 @@ namespace NZWalks.API.Controllers
                 var walkDto = mapper.Map<WalkDto>(walkDomainModel);
 
                 return Ok(walkDto); // Return a 200 OK response
-            }
-            else
-            {
-                return BadRequest(ModelState); // Return a 400 Bad Request response if the model state is invalid
-            }
         }
 
         [HttpGet]
@@ -68,10 +63,9 @@ namespace NZWalks.API.Controllers
 
         [HttpPut]
         [Route("{id:guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, UpdateWalkRequestDto updateWalkRequestDto)
         {
-            if(ModelState.IsValid)
-            {
                 // Map the DTO to the Domain Model using AutoMapper
                 var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
 
@@ -83,11 +77,6 @@ namespace NZWalks.API.Controllers
                 // Map the updated domain model back to a DTO
                 var walkDto = mapper.Map<WalkDto>(walkDomainModel);
                 return Ok(walkDto);
-            }
-            else
-            {
-                return BadRequest(ModelState); // Return a 400 Bad Request response if the model state is invalid
-            }
         }
 
         [HttpDelete]

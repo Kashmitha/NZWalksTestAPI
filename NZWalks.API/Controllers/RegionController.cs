@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NZWalks.API.Custom_Action_Filters;
 using NZWalks.API.Data;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
@@ -58,10 +59,9 @@ namespace NZWalks.API.Controllers
 
         // POST : https://......
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
         {
-            if(ModelState.IsValid)
-            {
                 //Convert DTO to Domain Model
                 var regionDomainModel = mapper.Map<Region>(addRegionRequestDto); // Use AutoMapper to convert the DTO to a domain model
 
@@ -72,21 +72,15 @@ namespace NZWalks.API.Controllers
                 var regionDto = mapper.Map<RegionDto>(regionDomainModel); // Convert the created domain model back to a DTO 
 
                 return CreatedAtAction(nameof(GetByID), new { id = regionDto.Id }, regionDto); // Returns a 201 Created response with the location of the new resource
-            }
-            else
-            {
-                return BadRequest(ModelState); // Returns a 400 Bad Request response if the model state is invalid
-            }
         }
 
 
         //PUT : https://....
         [HttpPut]
         [Route("{id:Guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
         {
-            if(ModelState.IsValid)
-            {
                 //Map DTO to Domain Model
                 var regionDomainModel = mapper.Map<Region>(updateRegionRequestDto); // Use AutoMapper to convert the DTO to a domain model
 
@@ -101,11 +95,6 @@ namespace NZWalks.API.Controllers
                 //Convert Domain to DTO
                 var regionDto = mapper.Map<RegionDto>(regionDomainModel);
                 return Ok(regionDto); // Returns a 200 OK response with the updated region's details
-            }
-            else
-            {
-                return BadRequest(ModelState); // Returns a 400 Bad Request response if the model state is invalid
-            }
         }
         
         
