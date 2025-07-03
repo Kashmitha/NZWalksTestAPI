@@ -25,6 +25,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksAuthConne
 // Register the repository service
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
 builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
+builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutomapperProfiles));
 
@@ -46,7 +47,7 @@ builder.Services.Configure<IdentityOptions>(Options =>
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
-    options.TokenValidationParameters = new TokenValidationParameters
+    options.TokenValidationParameters = new TokenValidationParameters 
     {
         ValidateIssuer = true,
         ValidateAudience = true,
